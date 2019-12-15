@@ -1,10 +1,11 @@
 # Important
 **BE VERY CAREFUL** Using the wrong value for any of the parameters may delete all the packages in a repository.
 
-# Delete GitHub packages in a repository
+# Delete Github packages in a repository
 It will delete all the versions of all the packages in the given repository that are older than the olderthan value.
 
 ## Create Config file
+Create or modify the provided config.json file with your desired settings.
 
 config.json:
 ```
