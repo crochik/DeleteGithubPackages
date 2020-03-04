@@ -2,5 +2,6 @@
     "token": "<github_token>",
     "owner": "Crochik",
     "project": "DeleteGithubPackages",
-    "olderthan": "01/01/19"
+    "olderthan": "01/01/19",
+    "package": "package_name"
 }
