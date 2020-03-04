@@ -12,6 +12,7 @@ $config = Get-Content -Raw -Path $Config | ConvertFrom-Json
 $token = $config.token
 $owner = $config.owner
 $project = $config.project
+$packagename = $config.package
 $olderthan = [string]$config.olderthan -as [DateTime]
 
 $today = Get-Date
@@ -34,14 +35,20 @@ function GetPackages {
 
 function DeletePackageVersion {
     param($id)
+    Write-Host "Delete Package Version Id:"$id
     $body = '{"query":"mutation { deletePackageVersion(input:{packageVersionId:\"' + $id + '\"}) { success }}"}'
+    Write-Host $body
     $response = Invoke-WebRequest -Uri https://api.github.com/graphql -Method POST -Headers $headers -Body $body
     $json = $response | ConvertFrom-Json
+    if ( $json.data.deletePackageVersion.success -ne $true) {
+        Write-Error $response
+    }
+    
     return $json.data.deletePackageVersion.success;
 }
 
 if ($SkipConfirmation -ne $true) {
-    Write-Host "Delete Packages from $owner/$project older than $olderthan ?"
+    Write-Host "Delete Packages from $owner/$project/$packagename older than $olderthan ?"
     $confirm = Read-Host -Prompt "> Type Yes to continue" 
     if ($confirm -ne 'Yes') {
         Write-Host 'Aborting...'
@@ -63,12 +70,17 @@ while ($modified) {
         $package = $edge.node
         Write-Host "Package:"$package.name
 
+        if ( $package.name -ne $packagename ) {
+            continue
+        }
+
         $list = $package.versions.nodes | Sort-Object -Property updatedAt
         ForEach ($version in $list) {
             if ( $version.updatedAt -gt $olderthan) {
+                Write-Host ">> no more old packages"
                 break;
             }
-            if ($version.version -eq 'docker-base-layer'){
+            if ($version.version -eq 'docker-base-layer') {
                 Write-Host " - (SKIP)"$version.version
                 continue;
             }
@@ -77,6 +89,7 @@ while ($modified) {
             $deleted = DeletePackageVersion $version.id
             if (!$deleted) {
                 Write-Host ">> Error"
+                break;
             }
             $modified = $true
         }
