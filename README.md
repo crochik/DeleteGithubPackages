@@ -14,12 +14,14 @@ config.json:
     "owner": "Crochik",
     "project": "DeleteGithubPackages",
     "olderthan": "12/01/19"
+    "package": "packagename"
 }
 ```
 * `token`: Personal github token with access to ...
 * `owner`: github account
 * `project`: github repository
 * `olderthan`: cut off date, all versions older than this date will be deleted
+* `package`: name of the package to be deleted 
 
 ## Usage
 ```
